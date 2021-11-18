@@ -8,6 +8,8 @@ import game_world
 
 from mokoko import Mokoko
 from grass import Grass
+from background import BackGround
+from blocks import Block1
 
 
 name = "MainState"
@@ -18,9 +20,12 @@ def enter():
     global mokoko
     mokoko = Mokoko()
     grass = Grass()
+    background = BackGround()
+    blocks = Block1()
+    game_world.add_object(background, 0)
     game_world.add_object(grass, 0)
+    game_world.add_object(blocks, 0)
     game_world.add_object(mokoko, 1)
-
 
 def exit():
     game_world.clear()

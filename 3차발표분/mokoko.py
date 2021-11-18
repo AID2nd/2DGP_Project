@@ -18,7 +18,7 @@ FRAMES_PER_ACTION = 8                               # 1개의 액션을 하는�
 
 
 # Mokoko Event
-RIGHT_DOWN, LEFT_DOWN, RIGHT_UP, LEFT_UP, A_DOWN, S_DOWN, SPACE_DOWN, SPACE_UP = range(8)
+RIGHT_DOWN, LEFT_DOWN, RIGHT_UP, LEFT_UP, A_DOWN, S_DOWN, SPACE_DOWN, SPACE_UP, C_DOWN = range(9)
 
 key_event_table = {
     (SDL_KEYDOWN, SDLK_RIGHT): RIGHT_DOWN,
@@ -28,7 +28,8 @@ key_event_table = {
     (SDL_KEYDOWN, SDLK_a): A_DOWN,
     (SDL_KEYDOWN, SDLK_s): S_DOWN,
     (SDL_KEYDOWN, SDLK_SPACE): SPACE_DOWN,
-    (SDL_KEYUP, SDLK_SPACE): SPACE_UP
+    (SDL_KEYUP, SDLK_SPACE): SPACE_UP,
+    (SDL_KEYDOWN, SDLK_c): C_DOWN
 }
 
 
@@ -58,6 +59,8 @@ class NormalState:        # 일반적인 상태
             if mokoko.injump == 1:                   # 점프 중이었다면
                 mokoko.injump = -1
                 print('space2')
+        elif event == C_DOWN:
+            mokoko.coin += 1
         mokoko.dir = clamp(-1, mokoko.velocity, 1)  # mokoko.dir의 최솟값과 최댓값을 -1과 1 범위로 한정하여 방향으로 설정해줌
 
     def exit(mokoko, event):
@@ -68,10 +71,13 @@ class NormalState:        # 일반적인 상태
         mokoko.x += mokoko.velocity * game_framework.frame_time
         mokoko.x = clamp(25, mokoko.x, 1600 - 25)
         mokoko.y += mokoko.injump * 7
-        if mokoko.y <= 75:
-            mokoko.injump = 0
-        elif mokoko.y >= 215:
+        if mokoko.y >= 215:
             mokoko.injump = -1
+        elif mokoko.y <= 75 and mokoko.x >=1000 and mokoko.x <= 1080:
+            mokoko.injump = -1
+        elif mokoko.y <= 75:
+            mokoko.injump = 0
+
 
     def draw(mokoko):
         if mokoko.dir == 1 or (mokoko.dir == 0 and mokoko.lastdir == 1):
@@ -103,6 +109,8 @@ class SuperState:
             if mokoko.injump == 1:  # 점프 중이었다면
                 mokoko.injump = -1
                 print('space2')
+        elif event == C_DOWN:
+            mokoko.coin += 1
         mokoko.dir = clamp(-1, mokoko.velocity, 1)
 
     def exit(mokoko, event):
@@ -128,16 +136,11 @@ class SuperState:
             mokoko.lastdir = -1
             print('왼쪽')
 
-    print('SuperState')
-
-
-
-
 
 
 next_state_table = {
-    NormalState: {RIGHT_UP: NormalState, LEFT_UP: NormalState, RIGHT_DOWN: NormalState, LEFT_DOWN: NormalState, A_DOWN: NormalState, S_DOWN: SuperState, SPACE_DOWN: NormalState, SPACE_UP: NormalState},
-    SuperState: {RIGHT_UP: SuperState, LEFT_UP: SuperState, LEFT_DOWN: SuperState, RIGHT_DOWN: SuperState, A_DOWN: SuperState, S_DOWN: NormalState, SPACE_DOWN: SuperState, SPACE_UP: SuperState}
+    NormalState: {RIGHT_UP: NormalState, LEFT_UP: NormalState, RIGHT_DOWN: NormalState, LEFT_DOWN: NormalState, A_DOWN: NormalState, S_DOWN: SuperState, SPACE_DOWN: NormalState, SPACE_UP: NormalState, C_DOWN: NormalState},
+    SuperState: {RIGHT_UP: SuperState, LEFT_UP: SuperState, LEFT_DOWN: SuperState, RIGHT_DOWN: SuperState, A_DOWN: SuperState, S_DOWN: NormalState, SPACE_DOWN: SuperState, SPACE_UP: SuperState, C_DOWN: NormalState}
 }
 
 
@@ -153,6 +156,7 @@ class Mokoko:
         self.lastdir = 1        # 마지막으로 움직인 방향(정지상태일때 캐릭터가 바라볼 방향을 지정해줌)
         self.velocity = 0       # 속력
         self.injump = 0         # 점프상태 판정변수. 0이면 바닥에 붙어있는상태, 1이면 점프중인상태, -1이면 자유낙하
+        self.coin = 0           # 코인점수
         self.frame = 0
         self.event_que = []
         self.cur_state = NormalState
@@ -177,9 +181,7 @@ class Mokoko:
 
     def draw(self):
         self.cur_state.draw(self)
-        self.font.draw(self.x - 60, self.y + 40, 'rock: unlimit', (0, 0, 255))
-        # 이 부분 나중에 맵으로 빼야함
-        # self.font.draw(self.x - 60, self.y + 50, '(Time: %3.2f)' % get_time(), (255, 255, 0))
+        self.font.draw(900, 560, 'coin: %d'%(self.coin), (0, 0, 255))
 
     def handle_event(self, event):
         if (event.type, event.key) in key_event_table:
