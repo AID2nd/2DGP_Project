@@ -8,5 +8,5 @@ class Block1:
         pass
 
     def draw(self):
-        for i in range(70, 290, 33):
-            self.image.draw(i, 400)
+        for i in range(700, 850, 33):
+            self.image.draw(i, 150)

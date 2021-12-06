@@ -10,9 +10,11 @@ class BackGround:
         pass
 
     def draw(self):
+        mushroom0 = 1       # 일단 ㅈㅁ
         self.spring.draw(0, 0)
         for i in range(380, 480, 30):
             self.coin.draw(i, 75)
-        for i in range(1280, 1480, 30):
+        for i in range(1180, 1260, 30):
             self.coin.draw(i, 75)
-        self.mushroom.draw(140, 430)
+        if mushroom0 == 1:
+            self.mushroom.draw(1400, 70)

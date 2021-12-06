@@ -16,7 +16,6 @@ ACTION_PER_TIME = 1.0 / TIME_PER_ACTION             # 일정 시간 동안 할 �
 FRAMES_PER_ACTION = 8                               # 1개의 액션을 하는데 걸리는 프레임
 
 
-
 # Mokoko Event
 RIGHT_DOWN, LEFT_DOWN, RIGHT_UP, LEFT_UP, A_DOWN, S_DOWN, SPACE_DOWN, SPACE_UP, C_DOWN = range(9)
 
@@ -35,8 +34,7 @@ key_event_table = {
 
 # Mokoko States
 
-class NormalState:        # 일반적인 상태
-
+class NormalState:        # 그냥 모코코
     def enter(mokoko, event):
         if event == RIGHT_DOWN:
             mokoko.velocity += RUN_SPEED_PPS
@@ -63,6 +61,7 @@ class NormalState:        # 일반적인 상태
             mokoko.coin += 1
         mokoko.dir = clamp(-1, mokoko.velocity, 1)  # mokoko.dir의 최솟값과 최댓값을 -1과 1 범위로 한정하여 방향으로 설정해줌
 
+
     def exit(mokoko, event):
         pass
 
@@ -71,14 +70,28 @@ class NormalState:        # 일반적인 상태
         mokoko.x += mokoko.velocity * game_framework.frame_time
         mokoko.x = clamp(25, mokoko.x, 1900 - 25)
         mokoko.y += mokoko.injump * 7
-        if mokoko.y >= 215:
-            mokoko.injump = -1
-        elif mokoko.y <= 75 and mokoko.x >=500 and mokoko.x <= 580:
-            mokoko.injump = -1
-        elif mokoko.y <= 75 and mokoko.x >=1000 and mokoko.x <= 1080:
-            mokoko.injump = -1
-        elif mokoko.y <= 75:
-            mokoko.injump = 0
+        if mokoko.x >= 1380 and mokoko.x <= 1425 and mokoko.y <= 90:
+            mokoko.add_event(S_DOWN)
+            mushroom0 = 0
+        if mokoko.x >= 680 and mokoko.x <= 850 and mokoko.y >= 185:
+            if mokoko.x == 680:
+                mokoko.injump = 0
+            if mokoko.y >= 365:
+                mokoko.injump = -1
+            elif mokoko.y <= 190:
+                mokoko.injump = 0
+        else:
+            if mokoko.y >= 215:
+                mokoko.injump = -1
+            elif mokoko.y <= 75 and mokoko.x >=500 and mokoko.x <= 580:
+                mokoko.injump = -1
+            elif mokoko.y <= 75 and mokoko.x >=1000 and mokoko.x <= 1080:
+                mokoko.injump = -1
+            elif mokoko.y <= 75:
+                mokoko.injump = 0
+
+
+
 
 
     def draw(mokoko):
@@ -145,8 +158,10 @@ class SuperState:
 
 
 next_state_table = {
-    NormalState: {RIGHT_UP: NormalState, LEFT_UP: NormalState, RIGHT_DOWN: NormalState, LEFT_DOWN: NormalState, A_DOWN: NormalState, S_DOWN: SuperState, SPACE_DOWN: NormalState, SPACE_UP: NormalState, C_DOWN: NormalState},
-    SuperState: {RIGHT_UP: SuperState, LEFT_UP: SuperState, LEFT_DOWN: SuperState, RIGHT_DOWN: SuperState, A_DOWN: SuperState, S_DOWN: NormalState, SPACE_DOWN: SuperState, SPACE_UP: SuperState, C_DOWN: NormalState}
+    NormalState: {RIGHT_UP: NormalState, LEFT_UP: NormalState, RIGHT_DOWN: NormalState, LEFT_DOWN: NormalState,
+                  A_DOWN: NormalState, S_DOWN: SuperState, SPACE_DOWN: NormalState, SPACE_UP: NormalState, C_DOWN: NormalState},
+    SuperState: {RIGHT_UP: SuperState, LEFT_UP: SuperState, LEFT_DOWN: SuperState, RIGHT_DOWN: SuperState,
+                 A_DOWN: SuperState, S_DOWN: NormalState, SPACE_DOWN: SuperState, SPACE_UP: SuperState, C_DOWN: NormalState}
 }
 
 
@@ -167,6 +182,7 @@ class Mokoko:
         self.event_que = []
         self.cur_state = NormalState
         self.cur_state.enter(self, None)
+        self.eat_mushroom = 0   # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 이거가지고 버섯먹기 한번해봐
 
 
     def throw_rock(self):
