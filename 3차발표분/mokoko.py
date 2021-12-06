@@ -69,9 +69,11 @@ class NormalState:        # 일반적인 상태
     def do(mokoko):
         mokoko.frame = (mokoko.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 3
         mokoko.x += mokoko.velocity * game_framework.frame_time
-        mokoko.x = clamp(25, mokoko.x, 1600 - 25)
+        mokoko.x = clamp(25, mokoko.x, 1900 - 25)
         mokoko.y += mokoko.injump * 7
         if mokoko.y >= 215:
+            mokoko.injump = -1
+        elif mokoko.y <= 75 and mokoko.x >=500 and mokoko.x <= 580:
             mokoko.injump = -1
         elif mokoko.y <= 75 and mokoko.x >=1000 and mokoko.x <= 1080:
             mokoko.injump = -1
@@ -86,6 +88,10 @@ class NormalState:        # 일반적인 상태
         elif mokoko.dir == -1 or (mokoko.dir == 0 and mokoko.lastdir == -1):
             mokoko.image.clip_draw(int(mokoko.frame) * 50, 0, 50, 50, mokoko.x, mokoko.y)
             mokoko.lastdir = -1
+        if mokoko.y <= 1:
+            mokoko.font.draw(900, 300, 'GAME OVER', (255, 0, 0))
+        if mokoko.x >= 1800:
+            mokoko.font.draw(900, 300, 'GAME CLEAR', (0, 0, 255))
 
 
 class SuperState:
@@ -148,7 +154,7 @@ next_state_table = {
 class Mokoko:
 
     def __init__(self):
-        self.x, self.y = 1600 // 2, 75
+        self.x, self.y = 50, 75
         self.image = load_image('mokoko_animations.png')
         self.superimage = load_image('super.png')
         self.font = load_font('ENCR10B.TTF', 16)
